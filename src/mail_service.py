@@ -5,13 +5,13 @@ in case of intruder detection
 """
 
 from __future__ import annotations
+import datetime
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 import os
 import config
-import datetime
 
 
 class MailServer:

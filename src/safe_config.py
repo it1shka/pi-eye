@@ -44,3 +44,4 @@ class GPIOConfig:
     WARNING_LED = 17
     OK_LED = 27
     FLASH_TIME = 3
+    BUZZER = 22

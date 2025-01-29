@@ -5,6 +5,7 @@ using RPi GPIO lines and external
 actuators
 """
 
+from __future__ import annotations
 from typing import Literal
 import RPi.GPIO as GPIO
 import asyncio
@@ -22,9 +23,10 @@ class ActuatorService:
         self._warning_led = config.GPIOConfig.WARNING_LED
         self._ok_led = config.GPIOConfig.OK_LED
         self._flash_time = config.GPIOConfig.FLASH_TIME
+        self._buzzer = config.GPIOConfig.BUZZER
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self._warning_led, GPIO.OUT)
-        GPIO.setup(self._ok_led, GPIO.OUT)
+        for output_pin in [self._warning_led, self._ok_led, self._buzzer]:
+            GPIO.setup(output_pin, GPIO.OUT)
 
     async def flash_pin(self, pin: ActuatorPin) -> None:
         """
@@ -40,3 +42,24 @@ class ActuatorService:
         GPIO.output(current_pin, GPIO.HIGH)
         await asyncio.sleep(self._flash_time)
         GPIO.output(current_pin, GPIO.LOW)
+
+    async def make_noise(self) -> None:
+        """
+        Makes negative noise using passive buzzer
+        Duration is the same as for LEDs
+        """
+        GPIO.output(self._buzzer, GPIO.HIGH)
+        await asyncio.sleep(self._flash_time)
+        GPIO.output(self._buzzer, GPIO.LOW)
+
+    def cleanup(self) -> None:
+        """Cleans up GPIO"""
+        GPIO.cleanup()
+
+    def __enter__(self) -> ActuatorService:
+        """Acquiring from `with`"""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Exiting `with`"""
+        self.cleanup()

@@ -21,8 +21,10 @@ async def main() -> None:
 
     image_stream = camera.register_camera()
     detector = faces.FaceRecognition()
-    actuators_service = actuators.ActuatorService()
-    with mail_service.MailServer() as mail_server:
+    with (
+        mail_service.MailServer() as mail_server,
+        actuators.ActuatorService() as actuators_service,
+    ):
         async for image_path in image_stream:
             verdict = detector.check_image(image_path)
             match verdict:
@@ -35,6 +37,7 @@ async def main() -> None:
                     print("Intruders detected. Sending mails...")
                     mail_server.dispatch_emails(image_path)
                     asyncio.create_task(actuators_service.flash_pin("warning"))
+                    asyncio.create_task(actuators_service.make_noise())
                 case _:
                     print("Failed to analyse the image")
 

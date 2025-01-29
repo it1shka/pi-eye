@@ -34,3 +34,13 @@ class RecognitionConfig:
     """
 
     FACES_PATH = "./faces"
+
+
+class GPIOConfig:
+    """
+    Class holding configuration of GPIO
+    """
+
+    WARNING_LED = 17
+    OK_LED = 27
+    FLASH_TIME = 3

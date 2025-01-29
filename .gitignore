@@ -1,6 +1,11 @@
 # Ignoring configuration of the application
 src/config.py
 
+# Ignoring files inside of the camera and faces folder
+camera/*
+faces/*
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

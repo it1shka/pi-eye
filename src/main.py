@@ -6,7 +6,8 @@ activity in your room
 import asyncio
 import camera
 import mail_service
-import face_recognition
+import faces
+from faces import RecognitionResult
 
 
 async def main() -> None:
@@ -17,15 +18,21 @@ async def main() -> None:
     sends emails
     """
 
+    image_stream = camera.register_camera()
+    detector = faces.FaceRecognition()
     with mail_service.MailServer() as mail_server:
-        image_stream = camera.register_camera()
         async for image_path in image_stream:
-            invalid = face_recognition.detect_invalid_face(image_path)
-            if invalid:
-                mail_server.dispatch_emails(image_path)
-                print('Intruder found. Sending emails...')
-            else:
-                print('Everything is alright')
+            verdict = detector.check_image(image_path)
+            match verdict:
+                case RecognitionResult.NO_FACES:
+                    print("Everything is clear")
+                case RecognitionResult.KNOWN_FACES:
+                    print("Detected known faces")
+                case RecognitionResult.UNKNOWN_FACES:
+                    print("Intruders detected. Sending mails...")
+                    mail_server.dispatch_emails(image_path)
+                case _:
+                    print("Failed to analyse the image")
 
 
 if __name__ == "__main__":
